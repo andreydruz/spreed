@@ -283,7 +283,11 @@ export default {
 				this.homeservers = this.homeservers.filter((entry) => entry.id !== homeserver.id)
 			} catch (error) {
 				console.error(error)
-				showError(t('spreed', 'Could not remove the homeserver'))
+				if (error?.response?.data?.ocs?.data?.error === 'accounts') {
+					showError(t('spreed', 'The homeserver can not be removed while users have accounts linked on it'))
+				} else {
+					showError(t('spreed', 'Could not remove the homeserver'))
+				}
 			} finally {
 				this.loading = false
 			}
