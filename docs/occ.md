@@ -148,6 +148,25 @@ Seed-based generator for demo conversations with mixed users, groups, replies an
 | `--group-pool-size` | Cap on distinct groups used across all rooms | yes | yes | no | *Required* |
 | `--main-user` | User added to every room as owner and used as the partner in every one-to-one | yes | yes | no | *Required* |
 
+## talk:matrix:homeserver
+
+Manage the Matrix homeservers users may link accounts on
+
+### Usage
+
+* `talk:matrix:homeserver [--output [OUTPUT]] [--name NAME] [--base-url BASE-URL] [--] <action> [<server-name>]`
+
+| Arguments | Description | Is required | Is array | Default |
+|---|---|---|---|---|
+| `action` | One of add, list, remove or test | yes | no | *Required* |
+| `server-name` | Matrix server name (add/remove/test), e.g. example.org | no | no | `NULL` |
+
+| Options | Description | Accept value | Is value required | Is multiple | Default |
+|---|---|---|---|---|---|
+| `--output` | Output format (plain, json or json_pretty, default is plain) | yes | no | no | `'plain'` |
+| `--name` | Label shown to users (add) | yes | yes | no | *Required* |
+| `--base-url` | Client API base URL override, skips .well-known discovery (add) | yes | yes | no | *Required* |
+
 ## talk:monitor:calls
 
 Prints a list with conversations that have an active call as well as their participant count
