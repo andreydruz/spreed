@@ -58,7 +58,7 @@ class AccountMapper extends QBMapper {
 	 */
 	public function getByMxids(array $mxids): array {
 		$accounts = [];
-		foreach (array_chunk($mxids, 1000) as $chunk) {
+		foreach (array_chunk($mxids, IQueryBuilder::MAX_IN_PARAMETERS) as $chunk) {
 			$qb = $this->db->getQueryBuilder();
 			$qb->select('*')
 				->from($this->getTableName())
