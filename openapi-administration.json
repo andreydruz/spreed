@@ -131,6 +131,7 @@
                             "chat",
                             "conversations",
                             "federation",
+                            "matrix",
                             "previews",
                             "signaling",
                             "experiments",
@@ -462,6 +463,18 @@
                                     "only-trusted-servers": {
                                         "type": "boolean",
                                         "description": "Whether only trusted servers are allowed for federation"
+                                    }
+                                }
+                            },
+                            "matrix": {
+                                "type": "object",
+                                "required": [
+                                    "enabled"
+                                ],
+                                "properties": {
+                                    "enabled": {
+                                        "type": "boolean",
+                                        "description": "Whether Matrix accounts can be linked"
                                     }
                                 }
                             },
@@ -2088,6 +2101,48 @@
                             }
                         }
                     },
+                    "400": {
+                        "description": "Users still have accounts linked on the homeserver",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "properties": {
+                                        "ocs": {
+                                            "type": "object",
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "error"
+                                                    ],
+                                                    "properties": {
+                                                        "error": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "accounts",
+                                                                "homeserver"
+                                                            ]
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
                     "404": {
                         "description": "Homeserver not found",
                         "content": {
@@ -2115,7 +2170,11 @@
                                                     ],
                                                     "properties": {
                                                         "error": {
-                                                            "type": "string"
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "accounts",
+                                                                "homeserver"
+                                                            ]
                                                         }
                                                     }
                                                 }

@@ -481,6 +481,10 @@ export type components = {
                     /** @description Whether only trusted servers are allowed for federation */
                     "only-trusted-servers": boolean;
                 };
+                matrix: {
+                    /** @description Whether Matrix accounts can be linked */
+                    enabled: boolean;
+                };
                 previews: {
                     /**
                      * Format: int64
@@ -1201,6 +1205,23 @@ export interface operations {
                     };
                 };
             };
+            /** @description Users still have accounts linked on the homeserver */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        ocs: {
+                            meta: components["schemas"]["OCSMeta"];
+                            data: {
+                                /** @enum {string} */
+                                error: "accounts" | "homeserver";
+                            };
+                        };
+                    };
+                };
+            };
             /** @description Current user is not logged in */
             401: {
                 headers: {
@@ -1239,7 +1260,8 @@ export interface operations {
                         ocs: {
                             meta: components["schemas"]["OCSMeta"];
                             data: {
-                                error: string;
+                                /** @enum {string} */
+                                error: "accounts" | "homeserver";
                             };
                         };
                     };

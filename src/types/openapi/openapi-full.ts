@@ -976,6 +976,25 @@ export type paths = {
         patch?: never;
         trace?: never;
     };
+    "/ocs/v2.php/apps/spreed/api/{apiVersion}/matrix/account": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the linked Matrix account and the homeservers an account can be linked on */
+        get: operations["matrix_account-get-account"];
+        put?: never;
+        /** Link a Matrix account with a password login, the password is not stored */
+        post: operations["matrix_account-link-account"];
+        /** Unlink the Matrix account and log Talk out on the homeserver */
+        delete: operations["matrix_account-unlink-account"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/ocs/v2.php/apps/spreed/api/{apiVersion}/bridge/{token}": {
         parameters: {
             query?: never;
@@ -3030,6 +3049,10 @@ export type components = {
                     /** @description Whether only trusted servers are allowed for federation */
                     "only-trusted-servers": boolean;
                 };
+                matrix: {
+                    /** @description Whether Matrix accounts can be linked */
+                    enabled: boolean;
+                };
                 previews: {
                     /**
                      * Format: int64
@@ -3440,6 +3463,16 @@ export type components = {
                 /** @description Whether the language is right-to-left */
                 rtl: boolean;
             };
+        };
+        MatrixAccount: {
+            /** @description SnowflakeID */
+            id: string;
+            /** @description SnowflakeID of the homeserver */
+            homeserverId: string;
+            /** @description Full Matrix user id, e.g. `@alice:example.org` */
+            mxid: string;
+            /** @description Matrix device id of Talk */
+            deviceId: string;
         };
         MatrixHomeserver: {
             /** @description SnowflakeID */
@@ -9102,6 +9135,225 @@ export interface operations {
                             data: {
                                 /** @enum {string} */
                                 error: "app" | "classified" | "translations" | "in-call";
+                            };
+                        };
+                    };
+                };
+            };
+        };
+    };
+    "matrix_account-get-account": {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Required to be true for the API request to pass */
+                "OCS-APIRequest": boolean;
+            };
+            path: {
+                apiVersion: "v1";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Account information returned */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        ocs: {
+                            meta: components["schemas"]["OCSMeta"];
+                            data: {
+                                canLink: boolean;
+                                account: components["schemas"]["MatrixAccount"] | null;
+                                homeservers: components["schemas"]["MatrixHomeserver"][];
+                            };
+                        };
+                    };
+                };
+            };
+            /** @description Current user is not logged in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        ocs: {
+                            meta: components["schemas"]["OCSMeta"];
+                            data: unknown;
+                        };
+                    };
+                };
+            };
+        };
+    };
+    "matrix_account-link-account": {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Required to be true for the API request to pass */
+                "OCS-APIRequest": boolean;
+            };
+            path: {
+                apiVersion: "v1";
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description Id of the homeserver */
+                    homeserverId: string;
+                    /** @description Matrix localpart or full user id */
+                    user: string;
+                    /** @description Matrix password */
+                    password: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Account linked */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        ocs: {
+                            meta: components["schemas"]["OCSMeta"];
+                            data: components["schemas"]["MatrixAccount"];
+                        };
+                    };
+                };
+            };
+            /** @description Invalid homeserver or user, account already linked or login rejected by the homeserver */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        ocs: {
+                            meta: components["schemas"]["OCSMeta"];
+                            data: {
+                                error: string;
+                            };
+                        };
+                    };
+                };
+            };
+            /** @description Wrong credentials */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        ocs: {
+                            meta: components["schemas"]["OCSMeta"];
+                            data: {
+                                error: string;
+                            };
+                        };
+                    } | {
+                        ocs: {
+                            meta: components["schemas"]["OCSMeta"];
+                            data: unknown;
+                        };
+                    };
+                };
+            };
+            /** @description User is not allowed to link an account */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        ocs: {
+                            meta: components["schemas"]["OCSMeta"];
+                            data: {
+                                error: string;
+                            };
+                        };
+                    };
+                };
+            };
+            /** @description Homeserver unreachable */
+            502: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        ocs: {
+                            meta: components["schemas"]["OCSMeta"];
+                            data: {
+                                error: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+    };
+    "matrix_account-unlink-account": {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Required to be true for the API request to pass */
+                "OCS-APIRequest": boolean;
+            };
+            path: {
+                apiVersion: "v1";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Account unlinked */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        ocs: {
+                            meta: components["schemas"]["OCSMeta"];
+                            data: unknown;
+                        };
+                    };
+                };
+            };
+            /** @description Current user is not logged in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        ocs: {
+                            meta: components["schemas"]["OCSMeta"];
+                            data: unknown;
+                        };
+                    };
+                };
+            };
+            /** @description No linked account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        ocs: {
+                            meta: components["schemas"]["OCSMeta"];
+                            data: {
+                                /** @enum {string} */
+                                error: "account";
                             };
                         };
                     };
@@ -16271,6 +16523,23 @@ export interface operations {
                     };
                 };
             };
+            /** @description Users still have accounts linked on the homeserver */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        ocs: {
+                            meta: components["schemas"]["OCSMeta"];
+                            data: {
+                                /** @enum {string} */
+                                error: "accounts" | "homeserver";
+                            };
+                        };
+                    };
+                };
+            };
             /** @description Current user is not logged in */
             401: {
                 headers: {
@@ -16309,7 +16578,8 @@ export interface operations {
                         ocs: {
                             meta: components["schemas"]["OCSMeta"];
                             data: {
-                                error: string;
+                                /** @enum {string} */
+                                error: "accounts" | "homeserver";
                             };
                         };
                     };

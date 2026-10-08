@@ -148,6 +148,30 @@ Seed-based generator for demo conversations with mixed users, groups, replies an
 | `--group-pool-size` | Cap on distinct groups used across all rooms | yes | yes | no | *Required* |
 | `--main-user` | User added to every room as owner and used as the partner in every one-to-one | yes | yes | no | *Required* |
 
+## talk:matrix-account:list
+
+List the Matrix accounts linked by users
+
+### Usage
+
+* `talk:matrix-account:list [--output [OUTPUT]]`
+
+| Options | Description | Accept value | Is value required | Is multiple | Default |
+|---|---|---|---|---|---|
+| `--output` | Output format (plain, json or json_pretty, default is plain) | yes | no | no | `'plain'` |
+
+## talk:matrix-account:unlink
+
+Unlink the Matrix account of a user and log Talk out on the homeserver
+
+### Usage
+
+* `talk:matrix-account:unlink <user-id>`
+
+| Arguments | Description | Is required | Is array | Default |
+|---|---|---|---|---|
+| `user-id` | Nextcloud user id | yes | no | *Required* |
+
 ## talk:matrix-homeserver:add
 
 Add a Matrix homeserver users may link accounts on
