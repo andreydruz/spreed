@@ -541,8 +541,8 @@ export type components = {
             version: string;
         };
         MatrixHomeserver: {
-            /** Format: int64 */
-            id: number;
+            /** @description SnowflakeID */
+            id: string;
             name: string;
             serverName: string;
             baseUrl: string;
@@ -1069,7 +1069,7 @@ export interface operations {
             path: {
                 apiVersion: "v1";
                 /** @description Homeserver id */
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -1181,7 +1181,7 @@ export interface operations {
             path: {
                 apiVersion: "v1";
                 /** @description Homeserver id */
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -1257,7 +1257,7 @@ export interface operations {
             path: {
                 apiVersion: "v1";
                 /** @description Homeserver id */
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
