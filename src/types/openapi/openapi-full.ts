@@ -985,7 +985,7 @@ export type paths = {
         };
         /**
          * Get the linked Matrix account and the homeservers an account can be linked on
-         * @description The access token of the linked account is checked with the homeserver.
+         * @description The access token of the linked account is checked with the homeserver, the result is reused for 5 minutes.
          */
         get: operations["matrix_account-get-account"];
         /** Log in again after the homeserver rejected the access token */
@@ -994,6 +994,23 @@ export type paths = {
         post: operations["matrix_account-link-account"];
         /** Unlink the Matrix account and log Talk out on the homeserver */
         delete: operations["matrix_account-unlink-account"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ocs/v2.php/apps/spreed/api/{apiVersion}/matrix/account/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Check the connection to the homeserver again */
+        post: operations["matrix_account-check-connection"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -9180,6 +9197,7 @@ export interface operations {
                             data: {
                                 canLink: boolean;
                                 account: components["schemas"]["MatrixAccount"] | null;
+                                connected: boolean;
                                 homeservers: components["schemas"]["MatrixHomeserver"][];
                             };
                         };
@@ -9458,6 +9476,70 @@ export interface operations {
                         ocs: {
                             meta: components["schemas"]["OCSMeta"];
                             data: unknown;
+                        };
+                    };
+                };
+            };
+            /** @description Current user is not logged in */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        ocs: {
+                            meta: components["schemas"]["OCSMeta"];
+                            data: unknown;
+                        };
+                    };
+                };
+            };
+            /** @description No linked account */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        ocs: {
+                            meta: components["schemas"]["OCSMeta"];
+                            data: {
+                                /** @enum {string} */
+                                error: "account";
+                            };
+                        };
+                    };
+                };
+            };
+        };
+    };
+    "matrix_account-check-connection": {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Required to be true for the API request to pass */
+                "OCS-APIRequest": boolean;
+            };
+            path: {
+                apiVersion: "v1";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Connection checked */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        ocs: {
+                            meta: components["schemas"]["OCSMeta"];
+                            data: {
+                                account: components["schemas"]["MatrixAccount"];
+                                connected: boolean;
+                            };
                         };
                     };
                 };

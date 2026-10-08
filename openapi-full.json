@@ -15313,7 +15313,7 @@
             "get": {
                 "operationId": "matrix_account-get-account",
                 "summary": "Get the linked Matrix account and the homeservers an account can be linked on",
-                "description": "The access token of the linked account is checked with the homeserver.",
+                "description": "The access token of the linked account is checked with the homeserver, the result is reused for 5 minutes.",
                 "tags": [
                     "matrix_account"
                 ],
@@ -15375,6 +15375,7 @@
                                                     "required": [
                                                         "canLink",
                                                         "account",
+                                                        "connected",
                                                         "homeservers"
                                                     ],
                                                     "properties": {
@@ -15388,6 +15389,9 @@
                                                                     "$ref": "#/components/schemas/MatrixAccount"
                                                                 }
                                                             ]
+                                                        },
+                                                        "connected": {
+                                                            "type": "boolean"
                                                         },
                                                         "homeservers": {
                                                             "type": "array",
@@ -16077,6 +16081,160 @@
                                                 },
                                                 "data": {
                                                     "nullable": true
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No linked account",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "properties": {
+                                        "ocs": {
+                                            "type": "object",
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "error"
+                                                    ],
+                                                    "properties": {
+                                                        "error": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "account"
+                                                            ]
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Current user is not logged in",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "properties": {
+                                        "ocs": {
+                                            "type": "object",
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ocs/v2.php/apps/spreed/api/{apiVersion}/matrix/account/check": {
+            "post": {
+                "operationId": "matrix_account-check-connection",
+                "summary": "Check the connection to the homeserver again",
+                "tags": [
+                    "matrix_account"
+                ],
+                "security": [
+                    {
+                        "bearer_auth": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "apiVersion",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "v1"
+                            ],
+                            "default": "v1"
+                        }
+                    },
+                    {
+                        "name": "OCS-APIRequest",
+                        "in": "header",
+                        "description": "Required to be true for the API request to pass",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Connection checked",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "properties": {
+                                        "ocs": {
+                                            "type": "object",
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "account",
+                                                        "connected"
+                                                    ],
+                                                    "properties": {
+                                                        "account": {
+                                                            "$ref": "#/components/schemas/MatrixAccount"
+                                                        },
+                                                        "connected": {
+                                                            "type": "boolean"
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
