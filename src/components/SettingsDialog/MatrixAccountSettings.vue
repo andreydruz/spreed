@@ -13,8 +13,11 @@ import NcButton from '@nextcloud/vue/components/NcButton'
 import NcPasswordField from '@nextcloud/vue/components/NcPasswordField'
 import NcSelect from '@nextcloud/vue/components/NcSelect'
 import NcTextField from '@nextcloud/vue/components/NcTextField'
+import IconAlertCircleOutline from 'vue-material-design-icons/AlertCircleOutline.vue'
+import IconCheck from 'vue-material-design-icons/Check.vue'
+import IconReload from 'vue-material-design-icons/Reload.vue'
 import { MATRIX } from '../../constants.ts'
-import { getMatrixAccount, linkMatrixAccount, reloginMatrixAccount, unlinkMatrixAccount } from '../../services/matrixService.ts'
+import { checkMatrixConnection, getMatrixAccount, linkMatrixAccount, reloginMatrixAccount, unlinkMatrixAccount } from '../../services/matrixService.ts'
 
 const LINK_ERRORS: Record<string, string> = {
 	credentials: t('spreed', 'Wrong Matrix username or password'),
@@ -33,6 +36,7 @@ const loaded = ref(false)
 const loading = ref(false)
 const canLink = ref(false)
 const account = ref<MatrixAccount | null>(null)
+const connected = ref(false)
 const homeservers = ref<MatrixHomeserver[]>([])
 const homeserver = ref<MatrixHomeserver | null>(null)
 const user = ref('')
@@ -48,6 +52,7 @@ async function load() {
 		const response = await getMatrixAccount()
 		canLink.value = response.data.ocs.data.canLink
 		account.value = response.data.ocs.data.account
+		connected.value = response.data.ocs.data.connected
 		homeservers.value = response.data.ocs.data.homeservers
 		homeserver.value = homeservers.value[0] ?? null
 	} catch (error) {
@@ -73,6 +78,7 @@ async function link() {
 			password: password.value,
 		})
 		account.value = response.data.ocs.data
+		connected.value = true
 		user.value = ''
 		showSuccess(t('spreed', 'Matrix account linked'))
 	} catch (error) {
@@ -98,6 +104,7 @@ async function relogin() {
 	try {
 		const response = await reloginMatrixAccount({ password: password.value })
 		account.value = response.data.ocs.data
+		connected.value = true
 		showSuccess(t('spreed', 'Logged in to Matrix again'))
 	} catch (error) {
 		console.error(error)
@@ -106,6 +113,23 @@ async function relogin() {
 		showError({ ...LINK_ERRORS, ...RELOGIN_ERRORS }[reason] ?? t('spreed', 'Could not log in to Matrix again'))
 	} finally {
 		password.value = ''
+		loading.value = false
+	}
+}
+
+/**
+ * Check the connection to the homeserver again
+ */
+async function checkConnection() {
+	loading.value = true
+	try {
+		const response = await checkMatrixConnection()
+		account.value = response.data.ocs.data.account
+		connected.value = response.data.ocs.data.connected
+	} catch (error) {
+		console.error(error)
+		showError(t('spreed', 'Could not check the connection to the homeserver'))
+	} finally {
 		loading.value = false
 	}
 }
@@ -135,6 +159,26 @@ async function unlink() {
 				{{ t('spreed', 'Linked as {mxid}', { mxid: account.mxid }) }}
 				<span class="matrix-account__muted">{{ t('spreed', 'Device {device}', { device: account.deviceId }) }}</span>
 			</p>
+			<div v-if="account.status === MATRIX.ACCOUNT_STATUS.ACTIVE" class="matrix-account__connection">
+				<template v-if="connected">
+					<IconCheck fillColor="var(--color-success-text)" :size="20" />
+					{{ t('spreed', 'Connected') }}
+				</template>
+				<template v-else>
+					<IconAlertCircleOutline fillColor="var(--color-warning-text)" :size="20" />
+					{{ t('spreed', 'The homeserver could not be reached') }}
+				</template>
+				<NcButton
+					variant="tertiary"
+					:aria-label="t('spreed', 'Check connection again')"
+					:title="t('spreed', 'Check connection again')"
+					:disabled="loading"
+					@click="checkConnection">
+					<template #icon>
+						<IconReload :size="20" />
+					</template>
+				</NcButton>
+			</div>
 			<form
 				v-if="account.status === MATRIX.ACCOUNT_STATUS.TOKEN_INVALID"
 				class="matrix-account__form"
@@ -210,6 +254,12 @@ async function unlink() {
 
 	&__muted {
 		color: var(--color-text-maxcontrast);
+	}
+
+	&__connection {
+		display: flex;
+		align-items: center;
+		gap: var(--default-grid-baseline);
 	}
 
 	&__warning {
