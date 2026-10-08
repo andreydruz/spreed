@@ -154,12 +154,13 @@ List the Matrix accounts linked by users, 1000 per run
 
 ### Usage
 
-* `talk:matrix-account:list [--output [OUTPUT]] [--offset OFFSET]`
+* `talk:matrix-account:list [--output [OUTPUT]] [--offset OFFSET] [--homeserver HOMESERVER]`
 
 | Options | Description | Accept value | Is value required | Is multiple | Default |
 |---|---|---|---|---|---|
 | `--output` | Output format (plain, json or json_pretty, default is plain) | yes | no | no | `'plain'` |
 | `--offset` | Continue after this user id, use the last user id of the previous run | yes | yes | no | `''` |
+| `--homeserver` | Only list accounts on the homeserver with this server name, e.g. example.org | yes | yes | no | `''` |
 
 ## talk:matrix-account:unlink
 
@@ -208,11 +209,15 @@ Remove a Matrix homeserver
 
 ### Usage
 
-* `talk:matrix-homeserver:remove <server-name>`
+* `talk:matrix-homeserver:remove [--force] [--] <server-name>`
 
 | Arguments | Description | Is required | Is array | Default |
 |---|---|---|---|---|
 | `server-name` | Matrix server name, e.g. example.org | yes | no | *Required* |
+
+| Options | Description | Accept value | Is value required | Is multiple | Default |
+|---|---|---|---|---|---|
+| `--force` | Unlink the Matrix accounts of all users on the homeserver first | no | no | no | `false` |
 
 ## talk:matrix-homeserver:test
 
