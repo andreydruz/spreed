@@ -500,6 +500,13 @@ export const FEDERATION = {
 	},
 } as const
 
+export const MATRIX = {
+	ACCOUNT_STATUS: {
+		ACTIVE: 0,
+		TOKEN_INVALID: 1,
+	},
+} as const
+
 export const MENTION = {
 	TYPE: {
 		CALL: 'call',

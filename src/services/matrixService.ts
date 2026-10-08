@@ -11,6 +11,8 @@ import type {
 	linkMatrixAccountParams,
 	linkMatrixAccountResponse,
 	MatrixHomeserver,
+	reloginMatrixAccountParams,
+	reloginMatrixAccountResponse,
 	removeMatrixHomeserverResponse,
 	testMatrixHomeserverResponse,
 	unlinkMatrixAccountResponse,
@@ -93,6 +95,15 @@ async function linkMatrixAccount(payload: linkMatrixAccountParams): linkMatrixAc
 }
 
 /**
+ * Log in again after the homeserver rejected the access token
+ *
+ * @param payload The Matrix password
+ */
+async function reloginMatrixAccount(payload: reloginMatrixAccountParams): reloginMatrixAccountResponse {
+	return axios.put(generateOcsUrl('apps/spreed/api/v1/matrix/account'), payload)
+}
+
+/**
  * Unlink the Matrix account
  */
 async function unlinkMatrixAccount(): unlinkMatrixAccountResponse {
@@ -104,6 +115,7 @@ export {
 	getMatrixAccount,
 	getMatrixHomeservers,
 	linkMatrixAccount,
+	reloginMatrixAccount,
 	removeMatrixHomeserver,
 	testMatrixHomeserver,
 	unlinkMatrixAccount,

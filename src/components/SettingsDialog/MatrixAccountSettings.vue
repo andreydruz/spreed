@@ -13,7 +13,8 @@ import NcButton from '@nextcloud/vue/components/NcButton'
 import NcPasswordField from '@nextcloud/vue/components/NcPasswordField'
 import NcSelect from '@nextcloud/vue/components/NcSelect'
 import NcTextField from '@nextcloud/vue/components/NcTextField'
-import { getMatrixAccount, linkMatrixAccount, unlinkMatrixAccount } from '../../services/matrixService.ts'
+import { MATRIX } from '../../constants.ts'
+import { getMatrixAccount, linkMatrixAccount, reloginMatrixAccount, unlinkMatrixAccount } from '../../services/matrixService.ts'
 
 const LINK_ERRORS: Record<string, string> = {
 	credentials: t('spreed', 'Wrong Matrix username or password'),
@@ -21,6 +22,11 @@ const LINK_ERRORS: Record<string, string> = {
 	user: t('spreed', 'The Matrix user does not belong to the selected homeserver'),
 	'already-linked': t('spreed', 'A Matrix account is already linked'),
 	'not-allowed': t('spreed', 'You are not allowed to link a Matrix account'),
+}
+
+const RELOGIN_ERRORS: Record<string, string> = {
+	user: t('spreed', 'The login belongs to a different Matrix account'),
+	homeserver: t('spreed', 'The homeserver is not available anymore'),
 }
 
 const loaded = ref(false)
@@ -81,6 +87,30 @@ async function link() {
 }
 
 /**
+ * Log in again after the homeserver rejected the access token
+ */
+async function relogin() {
+	if (!password.value) {
+		return
+	}
+
+	loading.value = true
+	try {
+		const response = await reloginMatrixAccount({ password: password.value })
+		account.value = response.data.ocs.data
+		showSuccess(t('spreed', 'Logged in to Matrix again'))
+	} catch (error) {
+		console.error(error)
+		// @ts-expect-error Vue: Object is of type unknown
+		const reason = error?.response?.data?.ocs?.data?.error
+		showError({ ...LINK_ERRORS, ...RELOGIN_ERRORS }[reason] ?? t('spreed', 'Could not log in to Matrix again'))
+	} finally {
+		password.value = ''
+		loading.value = false
+	}
+}
+
+/**
  * Unlink the account and log Talk out on the homeserver
  */
 async function unlink() {
@@ -105,6 +135,28 @@ async function unlink() {
 				{{ t('spreed', 'Linked as {mxid}', { mxid: account.mxid }) }}
 				<span class="matrix-account__muted">{{ t('spreed', 'Device {device}', { device: account.deviceId }) }}</span>
 			</p>
+			<form
+				v-if="account.status === MATRIX.ACCOUNT_STATUS.TOKEN_INVALID"
+				class="matrix-account__form"
+				@submit.prevent="relogin">
+				<p class="matrix-account__warning">
+					{{ t('spreed', 'The homeserver rejected the session of Talk. Enter your Matrix password to log in again.') }}
+				</p>
+				<p v-if="account.lastError" class="matrix-account__muted">
+					{{ account.lastError }}
+				</p>
+				<NcPasswordField
+					v-model="password"
+					:label="t('spreed', 'Matrix password')"
+					autocomplete="current-password"
+					:disabled="loading" />
+				<NcButton
+					type="submit"
+					variant="primary"
+					:disabled="loading || !password">
+					{{ t('spreed', 'Log in again') }}
+				</NcButton>
+			</form>
 			<NcButton :disabled="loading" @click="unlink">
 				{{ t('spreed', 'Unlink Matrix account') }}
 			</NcButton>
@@ -158,6 +210,10 @@ async function unlink() {
 
 	&__muted {
 		color: var(--color-text-maxcontrast);
+	}
+
+	&__warning {
+		color: var(--color-text-error);
 	}
 }
 </style>
