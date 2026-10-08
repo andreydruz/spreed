@@ -150,15 +150,16 @@ Seed-based generator for demo conversations with mixed users, groups, replies an
 
 ## talk:matrix-account:list
 
-List the Matrix accounts linked by users
+List the Matrix accounts linked by users, 1000 per run
 
 ### Usage
 
-* `talk:matrix-account:list [--output [OUTPUT]]`
+* `talk:matrix-account:list [--output [OUTPUT]] [--offset OFFSET]`
 
 | Options | Description | Accept value | Is value required | Is multiple | Default |
 |---|---|---|---|---|---|
 | `--output` | Output format (plain, json or json_pretty, default is plain) | yes | no | no | `'plain'` |
+| `--offset` | Continue after this user id, use the last user id of the previous run | yes | yes | no | `''` |
 
 ## talk:matrix-account:unlink
 
