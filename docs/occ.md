@@ -159,8 +159,8 @@ List the Matrix accounts linked by users, 1000 per run
 | Options | Description | Accept value | Is value required | Is multiple | Default |
 |---|---|---|---|---|---|
 | `--output` | Output format (plain, json or json_pretty, default is plain) | yes | no | no | `'plain'` |
-| `--offset` | Continue after this user id, use the last user id of the previous run | yes | yes | no | `''` |
-| `--homeserver` | Only list accounts on the homeserver with this server name, e.g. example.org | yes | yes | no | `''` |
+| `--offset` | Continue after this user id, use the last user id of the previous run | yes | yes | no | *Required* |
+| `--homeserver` | Only list accounts on the homeserver with this server name, e.g. example.org | yes | yes | no | *Required* |
 
 ## talk:matrix-account:unlink
 
